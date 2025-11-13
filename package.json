@@ -1,6 +1,6 @@
 {
   "name": "@the-oleg/the-utils",
-  "version": "0.0.1",
+  "version": "0.0.2-beta.0",
   "description": "Simple reusable TypeScript utils for any JS project",
   "type": "commonjs",
   "main": "./dist/the-utils.cjs",
@@ -13,7 +13,9 @@
       "require": "./dist/the-utils.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -29,7 +31,13 @@
     "type": "git",
     "url": "git+https://github.com/Verbalman/the-utils.git"
   },
-  "keywords": ["utility", "helping functions", "util", "utils", "helpers"],
+  "keywords": [
+    "utility",
+    "helping functions",
+    "util",
+    "utils",
+    "helpers"
+  ],
   "author": "Oleg Kasianets",
   "license": "MIT",
   "bugs": {
