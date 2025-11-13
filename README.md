@@ -1,10 +1,11 @@
 # @the-utils
 
 Small, framework-agnostic collection of TypeScript utility functions with:
-- Strong typings & JSDoc
-- Cross-browser safe implementations
-- Simple, predictable naming with `theUtil*` prefix
-- Ready to use in any JS stack (React, Next.js, Vue, Nuxt, Angular, Node, etc.)
+- ✅ Strong typings & JSDoc
+- ✅ Cross-browser safe implementations
+- ✅ Simple, predictable naming with `theUtil*` prefix
+- ✅ Ready to use in any JS stack (React, Next.js, Vue, Nuxt, Angular, Node, etc.)
+- ✅ SSR-safe guards where needed
 
 ---
 
@@ -35,6 +36,10 @@ import {
   theUtilReadLocalStorageWithExpiry,
   theUtilLeftOnlyNumbersInString,
   theUtilScrubbingData,
+  theUtilGetCookieByName,
+  theUtilSetCookie,
+  theUtilDeleteCookie,
+  ...
 } from '@the-oleg/the-utils';
 
 const id = theUtilGenerateUUID();
@@ -51,6 +56,10 @@ const {
   theUtilReadLocalStorageWithExpiry,
   theUtilLeftOnlyNumbersInString,
   theUtilScrubbingData,
+  theUtilGetCookieByName,
+  theUtilSetCookie,
+  theUtilDeleteCookie,
+  ...
 } = require('@the-oleg/the-utils');
 
 const id = theUtilGenerateUUID();
@@ -319,6 +328,219 @@ const s = new Set([1, 2, 3]);
 theUtilScrubbingData(s, 2, 999);
 // Set { 1, 999, 3 }
 ```
+
+---
+
+### theUtilGetCookieByName
+
+Get cookie value by name.
+
+```typescript
+import { theUtilGetCookieByName } from '@the-oleg/the-utils';
+
+const token = theUtilGetCookieByName('token');
+// "" if cookie does not exist
+```
+
+- Returns an empty string if cookie is not found or in SSR/Node environment.
+- Decodes URI-encoded values.
+
+
+### theUtilSetCookie
+
+Set cookie with optional attributes.
+
+```typescript
+import { theUtilSetCookie } from '@the-oleg/the-utils';
+
+theUtilSetCookie('token', 'abc123', {
+  daysToExpire: 7,
+  path: '/',
+  sameSite: 'Lax',
+  secure: true,
+});
+```
+
+Options
+
+```typescript
+interface TheUtilCookieSetOptions {
+  daysToExpire?: number;
+  expires?: Date | string;
+  maxAgeSeconds?: number;
+  path?: string;
+  domain?: string;
+  secure?: boolean;
+  sameSite?: 'Strict' | 'Lax' | 'None';
+}
+```
+
+Priority:
+
+- maxAgeSeconds
+- expires
+- daysToExpire
+
+
+### theUtilDeleteCookie
+
+Delete a cookie by name.
+
+```typescript
+theUtilDeleteCookie('token');
+
+// If you set a specific path or domain:
+theUtilDeleteCookie('session', { path: '/', domain: '.example.com' });
+```
+
+---
+
+### theUtilParseBooleanQuery
+
+Safely parses a boolean value from a query-string parameter.
+
+This util is intended to work with values from `URLSearchParams.get()` and
+accepts only the string values `"true"` and `"false"` (case-insensitive).
+For any other value, it returns the provided `defaultValue`.
+
+```typescript
+theUtilParseBooleanQuery(
+  value: string | null | undefined,
+  defaultValue?: boolean,
+): boolean | undefined;
+```
+
+Behaviour
+
+- `"true"` → `true`
+- `"false"` → `false`
+- `null`, `undefined`, `""` (empty string) → `defaultValue`
+- Any other string (e.g. `"1"`, `"yes"`, `"foo"`) → `defaultValue`
+
+If `defaultValue` is not provided, the util returns `undefined` in all
+non-parseable cases.
+
+Usage
+
+```typescript
+import { theUtilParseBooleanQuery } from '@the-oleg/the-utils';
+
+const search = new URLSearchParams(window.location.search);
+
+// ?debug=true&show=false&other=1
+
+const debug = theUtilParseBooleanQuery(search.get('debug'), false);
+// debug === true
+
+const show = theUtilParseBooleanQuery(search.get('show'), true);
+// show === false
+
+const other = theUtilParseBooleanQuery(search.get('other'), false);
+// other === false (fallback, because "1" is not "true"/"false")
+
+const missing = theUtilParseBooleanQuery(search.get('missing'), true);
+// missing === true (fallback)
+```
+
+Notes
+
+- This util is **intentionally strict** and does **not** treat `"1"`, `"0"`,
+`"yes"`, `"no"`, etc. as boolean values.
+- Use it for safe, predictable parsing of query parameters controlling
+feature flags, toggles, filters, etc.
+
+---
+
+### theUtilGetPlaceholderWidth
+
+Calculate the rendered width of an element’s **placeholder text** using the element's real computed styles.
+
+```typescript
+theUtilGetPlaceholderWidth(
+  inputEl: HTMLInputElement | HTMLTextAreaElement | null
+): number
+```
+
+Use cases
+
+- Dynamic UI where placeholder width defines:
+  - Animated label transitions 
+  - Floating labels 
+  - Custom input positioning 
+  - Placeholder-based alignment
+
+Example
+
+```typescript
+import { theUtilGetPlaceholderWidth } from '@the-oleg/the-utils';
+
+const input = document.querySelector('#emailInput');
+
+const width = theUtilGetPlaceholderWidth(input);
+
+console.log('Placeholder width:', width, 'px');
+```
+
+Returns **width in pixels** or `0` if unsupported/SSR/placeholder empty
+
+---
+
+### theUtilIsAsyncFunction
+
+Checks whether a given value is an **async function**.
+
+Usage
+
+```typescript
+import { theUtilIsAsyncFunction } from '@the-oleg/the-utils';
+
+async function loadData() {}
+function normalFn() {}
+
+theUtilIsAsyncFunction(loadData); // true
+theUtilIsAsyncFunction(normalFn); // false
+theUtilIsAsyncFunction(123);      // false
+```
+
+---
+
+### theUtilIsValidImageUrl
+
+Validates whether a URL string points to a likely image resource.
+Checks for a valid absolute URL and a known image file extension.
+It must use `http` or `https`.
+
+Supports both common and modern image formats (JPG, PNG, AVIF, WEBP, SVG, HEIC, TIFF, etc.).
+
+```typescript
+function theUtilIsValidImageUrl(url: string): boolean;
+```
+
+Usage
+
+```typescript
+import { theUtilIsValidImageUrl } from '@the-oleg/the-utils';
+
+theUtilIsValidImageUrl('https://site.com/photo.jpg');
+// → true
+
+theUtilIsValidImageUrl('http://example.com/icon.svg');
+// → true
+
+theUtilIsValidImageUrl('https://example.com/file.pdf');
+// → false
+
+theUtilIsValidImageUrl('not a url');
+// → false
+```
+
+Extensions Checked
+- Core: jpg, jpeg, png, gif, bmp, webp, svg
+- Modern: avif, heic, heif, jxl
+- Extended: tiff, tif, ico, cur, apng
+- Other valid: jfif, pjpeg, jp2
+
+This util does not use browser APIs and is safe for SSR (Next.js, Nuxt, Node.js).
 
 ---
 
