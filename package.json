@@ -2,7 +2,18 @@
   "name": "@the-oleg/the-utils",
   "version": "0.0.1",
   "description": "Simple utility functions",
-  "main": "index.js",
+  "type": "commonjs",
+  "main": "./dist/the-utils.cjs",
+  "module": "./dist/the-utils.es.js",
+  "types": "./dist/main.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.ts",
+      "import": "./dist/the-utils.es.js",
+      "require": "./dist/the-utils.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,21 +21,15 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vite-plugin-dts": "^3.3.1"
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2",
+    "vite-plugin-dts": "^4.5.4"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Verbalman/the-utils.git"
   },
-  "keywords": [
-    "utility",
-    "helping functions",
-    "util",
-    "utils",
-    "helpers"
-  ],
+  "keywords": ["utility", "helping functions", "util", "utils", "helpers"],
   "author": "Oleg Kasianets",
   "license": "MIT",
   "bugs": {
