@@ -211,7 +211,7 @@ theUtilLeftOnlyNumbersInString('abc');
 
 ### theUtilScrubbingData
 
-Overloaded helper to immutably “scrub” a value in different data structures.
+Helper to immutably “scrub” a value in different data structures.
 
 Signatures
 
